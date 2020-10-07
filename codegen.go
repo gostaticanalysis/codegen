@@ -7,7 +7,6 @@ import (
 	"go/token"
 	"go/types"
 	"io"
-	"os"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -64,9 +63,9 @@ func (g *Generator) ToAnalyzer(output io.Writer) *analysis.Analyzer {
 	}
 
 	return &analysis.Analyzer{
-		name: g.Name,
-		doc:  g.Doc,
-		run: func(pass *analysis.Pass) (interface{}, error) {
+		Name: g.Name,
+		Doc:  g.Doc,
+		Run: func(pass *analysis.Pass) (interface{}, error) {
 			gpass := &Pass{
 				Generator:         g,
 				Fset:              pass.Fset,
