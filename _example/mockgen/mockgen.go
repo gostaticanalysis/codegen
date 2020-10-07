@@ -1,15 +1,24 @@
 package mockgen
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
+	"go/format"
+	"os"
 
 	"github.com/gostaticanalysis/codegen"
+	"github.com/gostaticanalysis/knife"
 )
 
-var flagTypeName string
+var (
+	flagTypeName string
+	flagOutput   string
+)
 
 func init() {
 	Generator.Flags.StringVar(&flagTypeName, "type", "", "type name of interface")
+	Generator.Flags.StringVar(&flagOutput, "o", "", "output file name")
 }
 
 var Generator = &codegen.Generator{
@@ -33,9 +42,33 @@ var Generator = &codegen.Generator{
 		if err != nil {
 			return err
 		}
-		if err := t.Execute(pass.Output, knife.NewPackage(pass.Pkg)); err != nil {
+
+		var buf bytes.Buffer
+		if err := t.Execute(&buf, knife.NewPackage(pass.Pkg)); err != nil {
 			return err
 		}
+
+		src, err := format.Source(buf.Bytes())
+		if err != nil {
+			return err
+		}
+
+		if flagOutput == "" {
+			pass.Print(string(src))
+			return nil
+		}
+
+		f, err := os.Create(flagOutput)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprint(f, string(src))
+
+		if err := f.Close(); err != nil {
+			return err
+		}
+
 		return nil
 	},
 }
