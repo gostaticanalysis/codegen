@@ -49,6 +49,7 @@ func Run(t Testing, dir string, g *codegen.Generator, patterns ...string) []*Res
 		w := outputFunc(pkg)
 		return io.MultiWriter(w, &buf)
 	}
+
 	a := g.ToAnalyzer()
 	rs := analysistest.Run(t, dir, a, patterns...)
 	results := make([]*Result, len(rs))

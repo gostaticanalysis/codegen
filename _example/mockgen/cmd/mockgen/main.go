@@ -1,7 +1,7 @@
 package main
 
 import (
-	"mockgen"
+	"github.com/gostaticanalysis/codegen/_example/mockgen"
 
 	"github.com/gostaticanalysis/codegen/singlegenerator"
 )
