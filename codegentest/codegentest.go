@@ -1,3 +1,4 @@
+// Package codegentest provides utilities for testing generators.
 package codegentest
 
 import (
