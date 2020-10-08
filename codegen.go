@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"go/types"
 	"io"
+	"os"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -48,10 +49,12 @@ type Generator struct {
 	// Requires establishes a "horizontal" dependency between
 	// analysis passes (different analyzers, same package).
 	Requires []*analysis.Analyzer
+
+	Output func(pkg *types.Package) io.Writer
 }
 
 // ToAnalyzer converts the generator to an analyzer.
-func (g *Generator) ToAnalyzer(output io.Writer) *analysis.Analyzer {
+func (g *Generator) ToAnalyzer() *analysis.Analyzer {
 	requires := make([]*analysis.Analyzer, len(g.Requires))
 	for i := range requires {
 		a := *g.Requires[i] // copy
@@ -66,6 +69,11 @@ func (g *Generator) ToAnalyzer(output io.Writer) *analysis.Analyzer {
 		Name: g.Name,
 		Doc:  g.Doc,
 		Run: func(pass *analysis.Pass) (interface{}, error) {
+			var output io.Writer = os.Stdout
+			if g.Output != nil {
+				output = g.Output(pass.Pkg)
+			}
+
 			gpass := &Pass{
 				Generator:         g,
 				Fset:              pass.Fset,
@@ -79,6 +87,7 @@ func (g *Generator) ToAnalyzer(output io.Writer) *analysis.Analyzer {
 				ImportObjectFact:  pass.ImportObjectFact,
 				ImportPackageFact: pass.ImportPackageFact,
 			}
+
 			return nil, g.Run(gpass)
 		},
 		RunDespiteErrors: g.RunDespiteErrors,

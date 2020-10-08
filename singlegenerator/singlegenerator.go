@@ -38,7 +38,7 @@ func Main(g *codegen.Generator) {
 	copy(os.Args[1:], g.Flags.Args())
 	flag.CommandLine.SetOutput(ioutil.Discard)
 
-	a := g.ToAnalyzer(os.Stdout)
+	a := g.ToAnalyzer()
 	var requires []*analysis.Analyzer
 
 	requires, a.Requires = a.Requires, nil // Requires will be set after validation

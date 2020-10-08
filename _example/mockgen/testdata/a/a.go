@@ -1,6 +1,6 @@
 package a
 
-//go:generate go run ../../cmd/mockgen/main.go -o a_mock.go -type DB a.go
+//go:generate go run ../../cmd/mockgen/main.go -o mockgen.golden -type DB a.go
 
 type DB interface {
 	Get(id string) int
