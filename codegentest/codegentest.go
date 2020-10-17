@@ -119,12 +119,11 @@ func golden(t *testing.T, r *Result, update bool) {
 	got := r.Output.String()
 	r.Output = bytes.NewBufferString(got)
 
-	if diff := cmp.Diff(string(gf), got); diff != "" {
-		gname := r.Pass.Generator.Name
-		t.Errorf("%s's output is different from the golden file(%s):\n%s", gname, fpath, diff)
-	}
-
 	if !update {
+		if diff := cmp.Diff(string(gf), got); diff != "" {
+			gname := r.Pass.Generator.Name
+			t.Errorf("%s's output is different from the golden file(%s):\n%s", gname, fpath, diff)
+		}
 		return
 	}
 
