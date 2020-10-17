@@ -109,17 +109,17 @@ func Golden(t *testing.T, results []*Result, update bool) {
 func golden(t *testing.T, r *Result, update bool) {
 	t.Helper()
 
-	fname := fmt.Sprintf("%s.golden", r.Pass.Generator.Name)
-	fpath := filepath.Join(r.Dir, fname)
-	gf, err := ioutil.ReadFile(fpath)
-	if err != nil {
-		t.Fatal("unexpected error:", err)
-	}
-
 	got := r.Output.String()
 	r.Output = bytes.NewBufferString(got)
 
 	if !update {
+		fname := fmt.Sprintf("%s.golden", r.Pass.Generator.Name)
+		fpath := filepath.Join(r.Dir, fname)
+		gf, err := ioutil.ReadFile(fpath)
+		if err != nil {
+			t.Fatal("unexpected error:", err)
+		}
+
 		if diff := cmp.Diff(string(gf), got); diff != "" {
 			gname := r.Pass.Generator.Name
 			t.Errorf("%s's output is different from the golden file(%s):\n%s", gname, fpath, diff)
