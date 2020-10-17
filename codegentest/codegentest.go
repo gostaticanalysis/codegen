@@ -112,9 +112,9 @@ func golden(t *testing.T, r *Result, update bool) {
 	got := r.Output.String()
 	r.Output = bytes.NewBufferString(got)
 
+	fname := fmt.Sprintf("%s.golden", r.Pass.Generator.Name)
+	fpath := filepath.Join(r.Dir, fname)
 	if !update {
-		fname := fmt.Sprintf("%s.golden", r.Pass.Generator.Name)
-		fpath := filepath.Join(r.Dir, fname)
 		gf, err := ioutil.ReadFile(fpath)
 		if err != nil {
 			t.Fatal("unexpected error:", err)
