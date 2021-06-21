@@ -56,13 +56,16 @@ type Generator struct {
 // ToAnalyzer converts the generator to an analyzer.
 func (g *Generator) ToAnalyzer() *analysis.Analyzer {
 	requires := make([]*analysis.Analyzer, len(g.Requires))
+	requiresMap := make(map[*analysis.Analyzer]*analysis.Analyzer, len(g.Requires))
 	for i := range requires {
-		a := *g.Requires[i] // copy
+		_a := g.Requires[i]
+		a := *_a // copy
 		a.Run = func(pass *analysis.Pass) (interface{}, error) {
 			pass.Report = func(analysis.Diagnostic) {}
-			return g.Requires[i].Run(pass)
+			return _a.Run(pass)
 		}
 		requires[i] = &a
+		requiresMap[&a] = _a
 	}
 
 	return &analysis.Analyzer{
@@ -74,6 +77,13 @@ func (g *Generator) ToAnalyzer() *analysis.Analyzer {
 				output = g.Output(pass.Pkg)
 			}
 
+			resultOf := make(map[*analysis.Analyzer]interface{})
+			for k, v := range pass.ResultOf {
+				if _org := requiresMap[k]; _org != nil {
+					resultOf[_org] = v
+				}
+			}
+
 			gpass := &Pass{
 				Generator:         g,
 				Fset:              pass.Fset,
@@ -82,7 +92,7 @@ func (g *Generator) ToAnalyzer() *analysis.Analyzer {
 				Pkg:               pass.Pkg,
 				TypesInfo:         pass.TypesInfo,
 				TypesSizes:        pass.TypesSizes,
-				ResultOf:          pass.ResultOf,
+				ResultOf:          resultOf,
 				Output:            output,
 				ImportObjectFact:  pass.ImportObjectFact,
 				ImportPackageFact: pass.ImportPackageFact,
